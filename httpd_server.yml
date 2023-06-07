@@ -1,0 +1,35 @@
+- name: Install httpd Server
+  hosts: appservers
+  become: True
+  
+  tasks:
+   - name: Install httpd
+     yum:
+       name: httpd
+       state: present
+
+   - name: Copy index file
+     copy:
+       src: /home/ec2-user/src/httpd.conf
+       dest: /var/www/html/index.html
+       mode: 0644
+       backup: yes
+
+   - name: Start httpd Service
+     service:
+       name: httpd
+       state: started
+
+   - name: Get httpd version
+     command: httpd -v
+     register: version_command_output
+
+   - debug:
+       var: version_command_output.stdout_lines
+
+   - name: Get httpd Service status
+     command: systemctl status httpd
+     register: status_command_output
+
+   - debug:
+       var: status_command_output.stdout_lines
